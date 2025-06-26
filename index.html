@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVGO to YTO Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 CVGO to YTO Converter</h1>
+            <p>Advanced middleware with smart mapping, date reconciliation & validation</p>
+        </div>
+        
+        <div class="main-card">
+            <!-- Step 1: File Uploads -->
+            <div class="step-section">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">📁 Upload Required Files</div>
+                </div>
+                
+                <!-- CVGO XML Upload -->
+                <div class="config-group">
+                    <label>🗂️ CVGO XML Transaction File</label>
+                    <div class="file-upload-area" id="cvgo-upload-area">
+                        <p>📄 Drop your CVGO XML file here or click to browse</p>
+                        <button type="button" class="upload-button" onclick="document.getElementById('cvgo-file').click()">
+                            Choose CVGO XML File
+                        </button>
+                        <input type="file" id="cvgo-file" class="file-input" accept=".xml" />
+                    </div>
+                    <div id="cvgo-status" class="file-status" style="display: none;"></div>
+                </div>
+                
+                <!-- YTO Inventory Upload -->
+                <div class="config-group">
+                    <label>📋 YTO Inventory File (CSV)</label>
+                    <button type="button" class="template-button" onclick="downloadInventoryTemplate()">
+                        📥 Download Template
+                    </button>
+                    <div class="file-upload-area" id="inventory-upload-area">
+                        <p>📊 Drop your YTO inventory CSV file here or click to browse</p>
+                        <button type="button" class="upload-button" onclick="document.getElementById('inventory-file').click()">
+                            Choose Inventory CSV File
+                        </button>
+                        <input type="file" id="inventory-file" class="file-input" accept=".csv" />
+                    </div>
+                    <div id="inventory-status" class="file-status" style="display: none;"></div>
+                </div>
+                
+                <!-- POS Data Upload -->
+                <div class="config-group">
+                    <label>📈 POS Data File (CSV)</label>
+                    <button type="button" class="template-button" onclick="downloadPOSTemplate()">
+                        📥 Download Template
+                    </button>
+                    <div class="file-upload-area" id="pos-upload-area">
+                        <p>📊 Drop your POS data CSV file here or click to browse</p>
+                        <button type="button" class="upload-button" onclick="document.getElementById('pos-file').click()">
+                            Choose POS CSV File
+                        </button>
+                        <input type="file" id="pos-file" class="file-input" accept=".csv" />
+                    </div>
+                    <div id="pos-status" class="file-status" style="display: none;"></div>
+                </div>
+                
+                <!-- Customer Code Data Upload - UPDATED -->
+                <div class="config-group customer-code-section" style="border: 2px solid #17a2b8; background: linear-gradient(135deg, #f0fdff 0%, #e6fffa 100%); border-radius: 8px; padding: 20px;">
+                    <label style="color: #17a2b8; font-weight: bold;">👥 Customer Code Data File - Optional for Customer Mapping</label>
+                    <button type="button" class="template-button" onclick="downloadARTemplate()">
+                        📥 Download Customer Code Template
+                    </button>
+                    <div class="file-upload-area" id="ar-upload-area" style="border-color: #17a2b8;">
+                        <p>👤 Drop your Customer Code mapping CSV file here or click to browse</p>
+                        <button type="button" class="upload-button" onclick="document.getElementById('ar-file').click()">
+                            Choose Customer Code CSV File
+                        </button>
+                        <input type="file" id="ar-file" class="file-input" accept=".csv" />
+                    </div>
+                    <div id="ar-status" class="file-status" style="display: none;"></div>
+                    <div class="customer-mapping-info">
+                        <strong>💡 Customer Code Mapping:</strong>
+                        <ul>
+                            <li>Maps CVGO Account_name to your customer codes and assigns its corresponding AR account</li>
+                            <li>Example: "John Doe" → Customer Code: "CUST001", AR Account: "500101"</li>
+                            <li>If not uploaded, uses Account_name directly or default "walkin"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Configuration (Combined with Advanced) -->
+            <div class="step-section">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">⚙️ Configure Processing Options</div>
+                </div>
+                
+                <div class="config-section">
+                    <!-- Location Select - UPDATED with "Select --" default -->
+                    <div class="config-group">
+                        <label for="location-select">🏪 Select Location</label>
+                        <div class="location-edit-container">
+                            <select id="location-select" style="flex: 1;">
+                                <option value="">Select --</option>
+                                <option value="BALOY">BALOY - Baloy Branch</option>
+                                <option value="LAPASAN">LAPASAN - Lapasan Branch</option>
+                                <option value="YACAPIN">YACAPIN - Yacapin Branch</option>
+                                <option value="VAMENTA">VAMENTA - Vamenta Branch</option>
+                            </select>
+                            <button type="button" class="template-button" onclick="editLocations()" title="Add location">
+                                ➕ Add
+                            </button>
+                        </div>
+                        <div id="custom-location-input" style="display: none;">
+                            <input type="text" id="new-location-code" placeholder="Location Code (e.g., STORE1)" style="width: 48%; margin-right: 4%;" />
+                            <input type="text" id="new-location-name" placeholder="Location Name (e.g., Store 1)" style="width: 48%;" />
+                            <div style="margin-top: 8px;">
+                                <button type="button" class="template-button" onclick="addLocation()">➕ Add</button>
+                                <button type="button" class="template-button" onclick="cancelEditLocations()">❌ Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer Code - Now read-only with edit button -->
+                    <div class="config-group">
+                        <label for="customer-code">👤 Default Customer Code</label>
+                        <div class="editable-field-container">
+                            <input type="text" id="customer-code" value="walkin" readonly class="readonly-field" />
+                            <button type="button" class="edit-field-btn" onclick="toggleFieldEdit('customer-code')">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Accounts Receivable - Now read-only with edit button -->
+                    <div class="config-group">
+                        <label for="ar-account">💰 Accounts Receivable</label>
+                        <div class="editable-field-container">
+                            <input type="text" id="ar-account" value="500100" readonly class="readonly-field" />
+                            <button type="button" class="edit-field-btn" onclick="toggleFieldEdit('ar-account')">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sales Account - Now read-only with edit button -->
+                    <div class="config-group">
+                        <label for="sales-account">📊 Default Sales Account</label>
+                        <div class="editable-field-container">
+                            <input type="text" id="sales-account" value="5200200" readonly class="readonly-field" />
+                            <button type="button" class="edit-field-btn" onclick="toggleFieldEdit('sales-account')">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transaction Types - Updated with new defaults -->
+                <div class="transaction-types-container">
+                    <div class="transaction-types-header">
+                        <label class="transaction-types-title">🎯 Transaction Types to Process</label>
+                        <span class="transaction-types-info">Auto-detected from your CVGO file</span>
+                    </div>
+                    <div id="dynamic-checkboxes">
+                        <p style="color: var(--text-muted); font-style: italic; grid-column: 1 / -1; text-align: center;">Upload CVGO file to detect transaction types</p>
+                    </div>
+                    <div class="transaction-controls" style="display: none;" id="transaction-controls">
+                        <button type="button" class="control-btn" onclick="selectAllTransactionTypes()">Select All</button>
+                        <button type="button" class="control-btn" onclick="selectNoneTransactionTypes()">Select None</button>
+                        <button type="button" class="control-btn" onclick="selectCommonTransactionTypes()">Common Only</button>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings - Now integrated directly -->
+                <div class="advanced-section">
+                    <h4>📋 Field Mapping Rules</h4>
+                    <div class="config-section">
+                        <div class="config-group">
+                            <label for="customer-mapping-mode">👤 Customer Code Source</label>
+                            <select id="customer-mapping-mode">
+                                <option value="default">Use Default Value</option>
+                                <option value="account_name" selected>Use Account_name from CVGO</option>
+                                <option value="customer_mapping">Map Via Customer Code Mapping</option>
+                            </select>
+                            <small>Choose how to determine customer codes for YTO CSV output</small>
+                        </div>
+                        
+                        <div class="config-group">
+                            <label for="remarks-source">💬 Remarks Field Content</label>
+                            <select id="remarks-source">
+                                <option value="empty">Empty (No remarks)</option>
+                                <option value="cashier">Cashier Name</option>
+                                <option value="receipt_id">Receipt Identifier</option>
+                                <option value="transaction_desc">Transaction Description</option>
+                                <option value="custom">Custom Text</option>
+                            </select>
+                            <input type="text" id="custom-remarks-text" placeholder="Enter custom remarks text" 
+                                   style="margin-top: 8px; display: none;" />
+                            <small>Choose what appears in the Remarks column of your YTO CSV output</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="advanced-section">
+                    <h4>🔧 Processing Options</h4>
+                    <div class="config-section">
+                        <div class="config-group">
+                            <label for="validation-level">✅ Validation Level</label>
+                            <select id="validation-level">
+                                <option value="strict">Strict (Stop on errors and show details)</option>
+                                <option value="warning">Warning (Continue with warnings)</option>
+                                <option value="lenient">Lenient (Minimal validation)</option>
+                            </select>
+                            <small>Strict mode will stop conversion and show exactly where errors occurred</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Process -->
+            <div class="step-section">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">🚀 Start Smart Conversion</div>
+                </div>
+                
+                <button id="process-button" class="process-button" onclick="confirmAndStartConversion()" disabled>
+                    🎯 Start Smart Conversion
+                </button>
+                
+                <div id="progress-container" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text">Initializing...</div>
+                </div>
+            </div>
+            
+            <!-- Results Section - Reordered -->
+            <div id="results-container" class="results-container">
+                <!-- 1. Validation Report -->
+                <div id="validation-report" class="validation-report">
+                    <h3>📊 Validation Report</h3>
+                    <div id="validation-content"></div>
+                </div>
+                
+                <!-- 2. Processing Warnings -->
+                <div id="warnings-section" style="display: none;">
+                    <div class="warning-box">
+                        <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="toggleWarnings()">
+                            <h4 style="margin: 0;">⚠️ Processing Warnings (<span id="warning-count">0</span>)</h4>
+                            <button type="button" class="control-btn" style="margin: 0; padding: 4px 12px;">
+                                <span id="warnings-toggle-text">Show</span>
+                            </button>
+                        </div>
+                        <ul id="warnings-list" class="warning-list" style="display: none; margin-top: 12px;"></ul>
+                    </div>
+                </div>
+                
+                <!-- 3. Reconciliation Report Container -->
+                <div id="reconciliation-container"></div>
+                
+                <!-- 4. Preview Section -->
+                <div id="preview-section" style="margin-top: 20px; display: none;">
+                    <h3>👀 Preview (First 10 Rows)</h3>
+                    <div class="preview-table-container">
+                        <table id="preview-table" class="preview-table"></table>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <button type="button" class="control-btn" onclick="togglePreviewRows()">
+                            <span id="preview-toggle-text">Show All Rows</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 5. Download Section -->
+                <div class="download-section">
+                    <a id="download-link" class="download-button" style="display: none;">
+                        📥 Download YTO CSV File
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Settings Summary Modal -->
+    <div id="settings-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>🎯 Confirm Conversion Settings</h3>
+            <div id="settings-summary"></div>
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn confirm" onclick="proceedWithConversion()">✅ Proceed</button>
+                <button type="button" class="modal-btn cancel" onclick="closeSettingsModal()">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

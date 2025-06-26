@@ -1,0 +1,112 @@
+{
+    "defaultValues": {
+      "customerCode": "walkin",
+      "accountsReceivable": "0500100",
+      "salesAccountCode": "5200200"
+    },
+    "distributionNumbering": {
+      "method": "count_based",
+      "description": "Count items per receipt for distribution number"
+    },
+    "locations": [
+      {
+        "code": "BLY",
+        "name": "Baloy Branch",
+        "prefix": "BLY"
+      },
+      {
+        "code": "LPN", 
+        "name": "Lapasan Branch",
+        "prefix": "LPN"
+      },
+      {
+        "code": "YCPN",
+        "name": "Yacapin Branch",
+        "prefix": "YCPN"
+      },
+      {
+        "code": "VAMENTA",
+        "name": "Vamenta Branch",
+        "prefix": "VMNT"
+      }
+    ],
+    "salesAccountMapping": {
+      "Sales Select": "5200200",
+      "Sales Shoc+": "5200300", 
+      "Sales Chatime": "5200500",
+      "Sales Food": "5200100",
+      "Sales Beverages": "5200400"
+    },
+    "departmentMappings": {
+      "501203": "5200200",
+      "501204": "5200201",
+      "502507": "5200202",
+      "503001": "5200300",
+      "503002": "5200301"
+    },
+    "validation": {
+      "defaultLevel": "strict",
+      "requireInventoryMapping": true,
+      "requirePOSReconciliation": true,
+      "allowUnmappedProducts": false,
+      "warnOnMissingData": true
+    },
+    "processing": {
+      "defaultBatchSize": 50,
+      "maxTransactions": 10000,
+      "enableDiscountProcessing": true,
+      "alwaysNegativeDiscounts": true,
+      "applyNegativeDiscounts": true
+    },
+    "csvFormat": {
+      "delimiter": ",",
+      "dateFormat": "MM/DD/YYYY",
+      "currencyInCents": true,
+      "includeHeaders": true,
+      "taxableDefault": "Yes"
+    },
+    "ui": {
+      "enableProgressTracking": true,
+      "showValidationReport": true,
+      "enablePreview": true,
+      "maxPreviewRows": 10,
+      "enableLocationEditing": true
+    },
+    "templates": {
+      "customerCodeTemplate": {
+        "filename": "customer_code_mapping_template.csv",
+        "headers": ["Customer Name", "Customer Code", "AR Account"],
+        "sampleData": [
+          ["John Doe", "CUST001", "500101"],
+          ["Jane Smith", "CUST002", "500102"],
+          ["ABC Company", "CUST003", "500103"],
+          ["XYZ Corp", "CUST004", "500104"],
+          ["Maria Santos", "CUST005", "500105"]
+        ]
+      },
+      "inventoryTemplate": {
+        "filename": "yto_inventory_template.csv",
+        "headers": ["Code", "Name", "Costing Method", "Sales account", "Don't delete"],
+        "sampleData": [
+          ["100000269442", "Product Example 1", "FIFO", "Sales Select", "5200200"],
+          ["100000269443", "Product Example 2", "FIFO", "Sales Shoc+", "5200300"],
+          ["100000269444", "Product Example 3", "FIFO", "Sales Chatime", "5200500"]
+        ]
+      },
+      "posTemplate": {
+        "filename": "pos_data_template.csv", 
+        "headers": ["MIN", "BRANCH", "BUSINESS GROUP", "CLOSE DATE", "TRANSACTION DATE", "BEGINNING INVOICE", "ENDING INVOICE", "BEGINNING BALANCE", "ENDING BALANCE", "SALES FOR THE DAY", "VATABLE SALES", "MONTH", "YEAR"],
+        "sampleData": [
+          ["1", "MAIN", "Food", "2025-01-24", "2025-01-24", "000-089481", "000-089485", "0", "1500", "1500", "1339.29", "1", "2025"],
+          ["2", "MAIN", "Food", "2025-01-25", "2025-01-25", "000-089486", "000-089490", "1500", "3000", "1500", "1339.29", "1", "2025"]
+        ]
+      }
+    },
+    "advanced": {
+      "enableMultiCurrency": false,
+      "defaultCurrency": "PHP",
+      "enableTaxCalculation": true,
+      "roundingPrecision": 2,
+      "enableAuditLog": true
+    }
+  }
