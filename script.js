@@ -505,7 +505,7 @@ async function handleInventoryUpload(event) {
         const headers = lines[0].split(delimiter).map(h => h.trim().replace(/"/g, ''));
         console.log('Headers found:', headers);
         
-        const requiredColumns = ['Code', 'Name', 'Costing Method', 'Sales account', "Don't delete"];
+        const requiredColumns = ['Code', 'Name', 'Costing Method', 'Sales account', "Sales Account Code"];
         const missingColumns = requiredColumns.filter(col => !headers.includes(col));
         
         if (missingColumns.length > 0) {
@@ -515,7 +515,7 @@ async function handleInventoryUpload(event) {
         
         const codeIndex = headers.indexOf('Code');
         const salesAccountIndex = headers.indexOf('Sales account');
-        const salesCodeIndex = headers.indexOf("Don't delete");
+        const salesCodeIndex = headers.indexOf("Sales Account Code");
         
         inventoryData = [];
         productMapping = {};
@@ -953,7 +953,7 @@ Maria Santos\tCUST005\t500105`;
 }
 
 function downloadInventoryTemplate() {
-    const template = `Code\tName\tCosting Method\tSales account\tDon't delete
+    const template = `Code\tName\tCosting Method\tSales account\Sales Account Code
 100000269442\tProduct Example 1\tFIFO\tSales Select\t5200200
 100000269443\tProduct Example 2\tFIFO\tSales Shoc+\t5200300
 100000269444\tProduct Example 3\tFIFO\tSales Chatime\t5200500`;

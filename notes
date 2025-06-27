@@ -1,0 +1,11 @@
+# Start your day
+git pull
+
+# After making changes
+git add .
+git commit -m "Describe what you did"
+git push
+
+# Check status anytime
+git status
+git log --oneline -5  # See last 5 commits
