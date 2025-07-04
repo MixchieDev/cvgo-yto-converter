@@ -1,4 +1,4 @@
-// Enhanced CVGO to YTO Converter Script - Complete Fixed Version with UI Updates
+// Enhanced CVGO to YTO Converter Script - Complete Fixed Version with UI Updates and Dynamic Filename
 
 // Global variables
 let cvgoData = null;
@@ -10,6 +10,7 @@ let customerMapping = {};
 let posRangeMapping = {};
 let warnings = [];
 let detectedTransactionTypes = new Set();
+let originalXmlFileName = null; // Store original XML filename
 
 // Initialize reconciliation data
 let reconciliationData = {
@@ -43,6 +44,35 @@ function getLocationPrefix(locationCode) {
         'VAMENTA': 'VMNT'
     };
     return locationPrefixes[locationCode] || locationCode;
+}
+
+// Helper function to extract filename without extension
+function getFilenameWithoutExtension(filename) {
+    if (!filename) return null;
+    
+    // Remove path if present
+    const nameOnly = filename.split('/').pop().split('\\').pop();
+    
+    // Remove extension
+    const lastDotIndex = nameOnly.lastIndexOf('.');
+    if (lastDotIndex > 0) {
+        return nameOnly.substring(0, lastDotIndex);
+    }
+    
+    return nameOnly;
+}
+
+// Generate dynamic filename for CSV download
+function generateCsvFilename() {
+    const currentDate = new Date().toISOString().slice(0, 10);
+    
+    if (originalXmlFileName) {
+        const baseFilename = getFilenameWithoutExtension(originalXmlFileName);
+        return `${baseFilename}_converted_${currentDate}.csv`;
+    }
+    
+    // Fallback to original naming if no XML filename is available
+    return `yto_converted_${currentDate}.csv`;
 }
 
 // Initialize when DOM is loaded
@@ -425,6 +455,10 @@ async function handleCVGOUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
+    // Store the original filename for later use
+    originalXmlFileName = file.name;
+    console.log('Stored original XML filename:', originalXmlFileName);
+    
     const statusDiv = document.getElementById('cvgo-status');
     if (statusDiv) {
         statusDiv.style.display = 'block';
@@ -472,6 +506,7 @@ async function handleCVGOUpload(event) {
             statusDiv.textContent = `❌ Error loading CVGO XML: ${error.message}`;
         }
         cvgoData = null;
+        originalXmlFileName = null; // Reset filename on error
         checkReadyToProcess();
     }
 }
@@ -1558,7 +1593,7 @@ function updateProgress(percentage, message) {
     }
 }
 
-// UPDATED displayResults function
+// UPDATED displayResults function with dynamic filename
 function displayResults(csvContent, validationData, csvRows, processingWarnings = [], validationWarnings = []) {
     // Show validation summary first
     const validationContent = document.getElementById('validation-content');
@@ -1637,15 +1672,21 @@ function displayResults(csvContent, validationData, csvRows, processingWarnings 
         }
     }
     
-    // Setup download CSV
+    // Setup download CSV with dynamic filename
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const downloadLink = document.getElementById('download-link');
     
     if (downloadLink) {
         downloadLink.href = url;
-        downloadLink.download = `yto_converted_${new Date().toISOString().slice(0, 10)}.csv`;
+        downloadLink.download = generateCsvFilename(); // Use dynamic filename
         downloadLink.style.display = 'inline-block';
+        
+        // Update the download button text to show the filename
+        const dynamicFilename = generateCsvFilename();
+        downloadLink.textContent = `📥 Download ${dynamicFilename}`;
+        
+        console.log('Download link configured with filename:', dynamicFilename);
     }
     
     // Show preview

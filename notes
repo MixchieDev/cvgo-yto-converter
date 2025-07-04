@@ -4,7 +4,7 @@ git pull
 # After making changes
 git add .
 git commit -m "Describe what you did"
-git push
+git push origin HEAD:main
 
 # Check status anytime
 git status
